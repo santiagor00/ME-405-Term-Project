@@ -19,6 +19,10 @@ example.
     version 3.
 """
 
+
+"""!
+@section Software design
+"""
 import utime as time
 from machine import Pin, I2C
 from mlx90640 import MLX90640
@@ -241,5 +245,8 @@ if __name__ == "__main__":
     print ("Done.")
 
 ## @endcond End the block which Doxygen should ignore
+"""!
+@subsection Task and State diagrams
+"""
 
 
