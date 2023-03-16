@@ -7,7 +7,7 @@ on = True
 off = not(on)
 
 pinC3.value(off)
-print("10")
+"""print("10")
 utime.sleep_ms(1000)
 print("9")
 utime.sleep_ms(1000)
@@ -26,15 +26,20 @@ utime.sleep_ms(1000)
 print("2")
 utime.sleep_ms(1000)
 print("1")
-utime.sleep_ms(1000)
+utime.sleep_ms(1000)"""
 
 while firecount < 2:
-    print(f"firing {firecount}")
-    firecount += 1
-    pinC3.value(on)
-    utime.sleep_ms(250)
-    pinC3.value(off)
-    utime.sleep_ms(1000)
+    try:
+        firecount += 1
+        print(f"firing {firecount}")
+        pinC3.value(on)
+        utime.sleep_ms(287)
+        pinC3.value(off)
+        utime.sleep_ms(1000)
+    except KeyboardInterrupt:
+        pinC3.value(off)
+        print("off")
+        break
 print("target eliminated")
 """while True:
     try:

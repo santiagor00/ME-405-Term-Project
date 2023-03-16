@@ -24,7 +24,7 @@ from machine import I2C
 
 
 def pinsetup():
-    global encreader2, mdriver2, pdriver2, offset
+    global encreader2, mdriver2, pdriver2, offset, pinC3
     """
     global ser
 
@@ -72,9 +72,11 @@ def pinsetup():
     m2.kp = int(m2.kp)
     m2.endpos = int(m2.endpos)"""
 
-    m1kp = 5
-    m2kp = 5
-    offset = 100000
+    m1kp = 0
+    m2kp = 37
+    offset = 57000
+
+    pinC3 = pyb.Pin(pyb.Pin.board.PC3, pyb.Pin.OUT_PP) #firing pin
 
     tim4 = pyb.Timer (4, prescaler=0, period=0xFFFF)
     tim5 = pyb.Timer (5, freq=20000)
@@ -94,33 +96,47 @@ def pinsetup():
 
     pdriver2 = position_driver.PositionDriver()
 
-    level = pdriver2.run(encreader2.read(),offset ,m1kp)
+    level = pdriver2.run(encreader2.read(),offset,m2kp)
 
     print("doing a good trick")
 
-    while level > 5:
+    printcount = 0
+
+    confidence = 0
+    while confidence < 25:
+        printcount += 1
         posnow = encreader2.read()
         level = pdriver2.run(posnow)
         mdriver2.set_duty_cycle(level)
+        if -17.5 < level < 17.5:
+            confidence += 1
+            utime.sleep_ms(50)
+        if printcount == 10000:
+            print(f"pos={posnow}, lev={level}")
+            printcount = 0
 
     print("waiting to picture")
-    while utime.ticks_ms() < 5000:
-        pass
+    
+    """pinC3.value(True)
+    utime.sleep_ms(287)
+    pinC3.value(False)"""
+    
+    utime.sleep_ms(5000)
 
-    target()
+    posx, posy = target()
     print("target acquired")
 
-    return m1kp,m2kp,sendpos1, sendpos2
+    return m1kp,m2kp,posx, posy
 
 
-def motor1(shares1):
+def motor1(shares1): #Y axis
     """!
     Task which puts things into a share and a queue.
     @param shares A list holding the share and queue used by this task
     """
     #print("in motor1")
     # Get references to the share and queue which have been passed to this task
-    skp1, sendpos1, finx = shares1
+    skp1, sendpos1, finy = shares1
 
     tim8 = pyb.Timer (8, prescaler=0, period=0xFFFF)
     tim3 = pyb.Timer (3, freq=20000)
@@ -138,9 +154,9 @@ def motor1(shares1):
       
     mdriver1 = motor_driver.MotorDriver(ENA, IN1A, IN2A, tim3)
 
-    pdriver = position_driver.PositionDriver()
+    pdriver1 = position_driver.PositionDriver()
 
-    pdriver.run(encreader1.read(),sendpos1.get() ,skp1.get())
+    level = pdriver1.run(encreader1.read(),skp1.get())
 
     #timestart = utime.ticks_ms()
 
@@ -148,26 +164,27 @@ def motor1(shares1):
     nmax=50
 
     while True:
+
         posnow = encreader1.read()
-        level = pdriver.run(posnow,sendpos1.get())
+        level = pdriver1.run(posnow,sendpos1.get())
         mdriver1.set_duty_cycle(level)
         #timenow = utime.ticks_ms()
         if -5 <= level <= 5:
-            finx.put(1)
-            print("y axis complete")
+            finy.put(1)
+            #print("y axis complete")
             """if qtim1.full() == False and qpos1.full() == False:
                 qtim1.put(utime.ticks_diff(timenow,timestart))
                 qpos1.put(posnow)
                 n += 1"""
         else:
-            finx.put(0)
+            finy.put(0)
             
 
         #print("end motor1, n=",n)
         yield 0
 
 
-def motor2(shares2):
+def motor2(shares2): #X axis
     global encreader2, mdriver2, pdriver2
     """!
     Task which turns the base.
@@ -175,27 +192,56 @@ def motor2(shares2):
     """
     # Get references to the share and queue which have been passed to this task
     #print("in motor2")
-    skp2, sendpos2, finy = shares2
+    skp2, sendpos2, finx = shares2
 
     #timestart = utime.ticks_ms()
+
+    """tim4 = pyb.Timer (4, prescaler=0, period=0xFFFF)
+    tim5 = pyb.Timer (5, freq=20000)
+
+    pinB6 = pyb.Pin (pyb.Pin.board.PB6, pyb.Pin.OUT_PP)
+    pinB7 = pyb.Pin (pyb.Pin.board.PB7, pyb.Pin.OUT_PP)
+
+    encreader2 = encoder_reader.EncoderReader(pinB6, pinB7, tim4)
+
+    ENB = pyb.Pin (pyb.Pin.board.PC1, pyb.Pin.OUT_OD, pyb.Pin.PULL_UP)
+    IN1B = pyb.Pin (pyb.Pin.board.PA0, pyb.Pin.OUT_PP)
+    IN2B = pyb.Pin (pyb.Pin.board.PA1, pyb.Pin.OUT_PP)
+    
+    ENB.high()
+
+    mdriver2 = motor_driver.MotorDriver(ENB, IN1B, IN2B, tim5)
+
+    pdriver2 = position_driver.PositionDriver()
+
+    level = pdriver2.run(encreader2.read(),skp2.get())"""
 
     n=0
     nmax=50
 
+    #pdriver2.set_kp(25)
+    printcount = 0
+
     while True:
         posnow = encreader2.read()
-        level = pdriver2.run(posnow, setpoint= sendpos2.get())
+        level = pdriver2.run(posnow, sendpos2.get())
+        #print(sendpos2.get())
         mdriver2.set_duty_cycle(level)
         #timenow = utime.ticks_ms()
-        if -5 <= level <= 5:
-            finy.put(1)
-            print("x axis complete")
+        if printcount == 10000:
+            print(f"pos={posnow}, lev={level}")
+            printcount = 0
+        printcount += 1
+        if -17.5 <= level <= 17.5:
+            finx.put(1)
+            #print("x axis complete")
             """if qtim2.full() == False and qpos2.full() == False:
                 qtim2.put(utime.ticks_diff(timenow,timestart))
                 qpos2.put(posnow)
                 n += 1"""
         else:
-            finy.put(0)            
+            finx.put(0)
+            #print(f"xpos={posnow}, xlev={level}")
         #print("end motor2, n=",n)"""
         yield 0
 
@@ -264,6 +310,33 @@ def target():
     32,30,24,42,47,42,30,50,29,29,41,37,32,41,18,54,18,25,30,30,34,28,46,27,41,33,29,33,33,23,43,29
     33,51,38,50,27,50,37,56,45,46,50,46,32,48,48,65,29,47,46,75,63,51,54,50,37,60,55,65,55,51,66,55
     15,21,10,18,6,15,1,36,24,19,21,18,15,16,15,10,19,10,10,37,21,28,14,24,9,14,29,25,24,5,23,0
+    
+
+    41,71,38,54,32,67,43,65,53,64,51,46,44,65,44,65,55,58,48,57,41,68,66,71,53,71,58,75,51,72,70,68
+    45,50,38,41,47,48,23,67,55,55,34,46,54,50,51,66,51,44,55,54,64,38,54,62,61,42,36,75,53,44,37,72
+    23,65,56,81,36,72,58,67,56,72,37,77,45,64,46,75,41,65,56,55,48,61,67,57,54,64,62,68,56,65,70,83
+    37,58,46,67,40,52,46,64,55,47,33,80,44,45,32,63,50,43,46,47,60,48,34,57,57,45,53,62,65,57,55,75
+    43,66,28,67,47,67,62,72,44,73,56,63,42,62,61,74,50,51,48,75,48,70,60,75,54,65,78,70,70,74,64,78
+    40,55,41,61,43,54,51,62,42,46,45,60,42,41,41,63,48,56,37,70,48,50,62,61,61,46,76,51,68,37,52,53
+    38,71,58,74,47,71,56,65,41,72,56,82,23,67,52,70,50,62,50,64,40,58,47,55,58,61,52,56,58,43,57,63
+    43,42,41,60,47,46,31,65,44,46,52,71,40,63,57,72,47,40,28,50,41,38,42,47,40,56,42,46,32,25,46,32
+    25,61,51,66,38,78,64,65,42,70,63,71,36,66,62,70,53,67,67,74,48,60,56,52,60,67,62,57,41,75,56,74
+    40,45,35,53,43,42,45,66,44,51,45,65,37,48,60,62,56,51,48,45,56,50,45,37,45,28,36,43,36,48,28,62
+    62,75,60,47,44,71,61,81,54,62,60,88,54,76,60,91,44,62,76,66,52,72,64,62,43,63,64,76,52,68,67,68
+    55,41,35,80,62,40,51,63,60,41,53,82,55,60,52,53,51,44,40,43,52,41,43,68,43,34,36,61,46,33,31,44
+    35,65,65,67,43,61,65,80,55,66,61,75,45,80,61,68,36,63,62,81,40,63,63,74,51,99,56,71,55,65,71,57
+    26,46,35,47,31,70,35,58,37,60,32,72,36,32,25,58,26,43,52,61,43,51,46,54,48,53,46,42,62,37,44,47
+    44,63,53,67,45,67,51,63,45,72,57,74,67,58,64,64,65,64,63,65,50,54,71,66,54,66,51,63,67,58,63,62
+    30,46,35,48,34,53,41,58,32,58,35,52,44,50,33,47,37,30,43,56,42,36,52,56,42,46,43,57,52,40,42,48
+    35,54,51,67,57,48,52,56,64,66,71,63,64,54,67,70,67,70,67,64,68,47,53,73,50,53,50,61,68,61,76,61
+    28,37,47,62,36,37,25,66,47,37,42,76,47,35,33,55,38,22,38,62,32,44,30,60,42,33,35,58,37,34,40,47
+    38,54,51,61,43,51,62,51,50,61,51,57,52,68,65,58,43,47,71,58,51,57,48,74,57,66,75,55,60,62,60,55
+    14,48,26,36,21,34,38,54,60,47,31,44,33,36,35,64,37,33,34,60,40,27,48,47,43,27,50,38,42,24,35,33
+    34,73,34,42,42,62,44,58,43,58,44,63,44,43,65,68,44,64,62,53,53,54,43,65,41,60,54,54,54,54,62,50
+    31,41,32,27,35,31,27,57,38,14,14,46,33,22,30,35,32,33,22,41,31,25,20,45,26,35,16,28,41,23,27,30
+    48,55,50,50,37,50,38,44,38,60,61,58,32,48,52,47,25,63,50,53,37,65,58,47,60,54,48,38,43,54,56,60
+    27,11,11,35,11,4,15,30,26,25,23,28,22,3,22,34,35,4,10,17,22,13,8,18,31,0,15,18,17,7,12,10
+
     """
     
     global offset
@@ -326,7 +399,7 @@ def target():
     lc = [l1c,l2c,l3c,l4c,l5c,l6c,l7c,l8c,l9c,l10c,l11c,l12c,l13c,l14c,l15c,l16c,l17c,l18c,l19c,l20c,l21c,l22c,l23c,l24c]
     rmax = len(l)*[0]
 
-    scale = 500
+    scale = 300
     
     while True:
         #print("fin=", fin.get())
@@ -357,44 +430,60 @@ def target():
                 o+=1
             
             for n in range(len(l)):
-                rmax[n] = max(l[n]-lc(n))
+                imax = 0
+                for i in range(len(l[n])):
+                    #currpix = l[n][i]-lc[n][i]
+                    #currgain = 100/(100-lc[n][i])
+                    currpix = l[n][i]
+                    imax = max([imax, currpix])
+                rmax[n] = imax
             cmax = max(rmax)
             for n in range(len(l)):
                 for i in range(len(l[n])):
+                    #print(l[n][i],",")
+                    currpix = l[n][i]-lc[n][i]
+                    currgain = 100/(100-lc[n][i])
+                    #if cmax == currpix*currgain:
                     if cmax == l[n][i]:
-                        r = n
-                        c = i
+                        c = n
+                        r = i
+                #print("\r \n")
 
-            if r > 16:
-                posx = (r-15)*scale+offset
+            if r > 16: #fix - motor 2 is X, motor 1 is Y
+                posx = (15-r)*scale+offset
                 #sendpos2.put(posx)
-                print("moving left")
-            elif r < 15:
-                posx = (r-15)*scale+offset
+                #print("moving left")
+            elif r <= 15:
+                posx = (15-r)*scale+offset
                 #sendpos2.put(posx)
-                print("moving right")
+                #print("moving right")
             else:
                 #sendpos2.put(sendpos2.get())  don't uncomment
-                print("good x")
+                #print("good x")
+                posx = 0
+                pass
 
             if c > 12:
                 posy = 0 #(c-11)*500
                 #sendpos1.put(posy)
-                print("moving down")
+                #print("moving down")
             elif c <11:
                 posy = 0
                 #sendpos1.put(posy)
-                print("moving up")
+                #print("moving up")
             else:
                 #sendpos1.put(0) don't uncomment
-                print("good y")
+                #print("good y")
+                posy = 0
+                pass
             print(f"({c},{r}),tim={utime.ticks_diff(tim2,tim1)}ms")
 
        
         #print("end serprint")
-        return sendpos1, sendpos2
+        return posx, posy
 
 def fire(shares):
+    global pinC3
     #enter code here to fire
     #fire and search again
 
@@ -402,18 +491,27 @@ def fire(shares):
 
     firecount = 0
 
-    pinC3 = pyb.Pin(pyb.Pin.board.PC3, pyb.Pin.OUT_PP) #firing pin
+    confidence = 0
+
+    #pinC3 = pyb.Pin(pyb.Pin.board.PC3, pyb.Pin.OUT_PP) #firing pin
 
     while True:
+        #print(f"in firing, con={confidence}")
         if finx.get() == 1 and finy.get() == 1 and firecount < 2:
-            print(f"firing {firecount}")
-            firecount += 1
-            finx.put(0)
-            finy.put(0)
-            pinC3.value(0)
-            utime.sleep_ms(125)
-            pinC3.value(1)
-            print("target eliminated")
+            if confidence >= 25:
+                print(f"firing {firecount}")
+                firecount += 1
+                finx.put(0)
+                finy.put(0)
+                pinC3.value(1)
+                utime.sleep_ms(750) #287 ms
+                pinC3.value(0)
+                utime.sleep_ms(250)
+                pinC3.value(1)
+                utime.sleep_ms(500)
+                pinC3.value(0)
+                utime.sleep_ms(250)
+            confidence += 1
         yield 0
 
 
@@ -421,62 +519,68 @@ def fire(shares):
 # tasks run until somebody presses ENTER, at which time the scheduler stops and
 # printouts show diagnostic information about the tasks, share, and queue.
 if __name__ == "__main__":
-    m1,m2,pos1, pos2 = pinsetup()
-    print("Testing ME405 stuff in cotask.py and task_share.py\r\n"
-          "Press Ctrl-C to stop and show diagnostics.")
-
-    # Create a share and a queue to test function and diagnostic printouts
-    """share0 = task_share.Share('h', thread_protect=False, name="Share 0")
-    q0 = task_share.Queue('L', 16, thread_protect=False, overwrite=False, name="Queue 0")
-    """
-    #qtim1 = task_share.Queue('i',300,thread_protect=False,overwrite=False,name="time1")
-    #qpos1 = task_share.Queue('i',300,thread_protect=False,overwrite=False,name="position1")
-    #qtim2 = task_share.Queue('i',300,thread_protect=False,overwrite=False,name="time2")
-    #qpos2 = task_share.Queue('i',300,thread_protect=False,overwrite=False,name="position2")
-
-    skp1 = task_share.Share("i", thread_protect=False, name="shared_kp1")
-    sendpos1 = task_share.Share("i",thread_protect=False, name="shared_endpos1")
-    skp2 = task_share.Share("i", thread_protect=False, name="shared_kp2")
-    sendpos2 = task_share.Share("i",thread_protect=False, name="shared_endpos2")
-    finx = task_share.Share("i", thread_protect=False, name="finishedx")
-    finy = task_share.Share("i", thread_protect=False, name="finishedy")
-
-    # Create the tasks. If trace is enabled for any task, memory will be
-    # allocated for state transition tracing, and the application will run out
-    # of memory after a while and quit. Therefore, use tracing only for 
-    # debugging and set trace to False when it's not needed
-    """task1 = cotask.Task(task1_fun, name="Task_1", priority=1, period=400, profile=True, trace=False, shares=(share0, q0))
-    task2 = cotask.Task(task2_fun, name="Task_2", priority=2, period=1500, profile=True, trace=False, shares=(share0, q0))
-    cotask.task_list.append(task1)
-    cotask.task_list.append(task2)
-    """
-
-    skp1.put(m1)
-    skp2.put(m2)
-    finx.put(0)
-    finy.put(0)
-    sendpos1.put(pos1)
-    sendpos2.put(pos2)
-
-    per = 20
-    mot1 = cotask.Task(motor1, name = "motor_1", priority=1, period=per, profile=True, trace=False, shares=(skp1,sendpos1,finx))
-    mot2 = cotask.Task(motor2, name = "motor_2", priority=2, period=per, profile=True, trace=False, shares=(skp2,sendpos2,finy))
-    arr = cotask.Task(fire, name = "get_image", priority=0, period=per, profile=True, trace=False, shares=(finx,finy))
-
-
-    cotask.task_list.append(mot1)
-    cotask.task_list.append(mot2)
-    cotask.task_list.append(arr)
+    global mdriver2, pdriver2, encreader2
+    try:
     
-    # Run the memory garbage collector to ensure memory is as defragmented as
-    # possible before the real-time scheduler is started
-    gc.collect()
+        m1,m2,posx, posy = pinsetup()
+        print("Testing ME405 stuff in cotask.py and task_share.py\r\n"
+            "Press Ctrl-C to stop and show diagnostics.")
+
+        # Create a share and a queue to test function and diagnostic printouts
+        """share0 = task_share.Share('h', thread_protect=False, name="Share 0")
+        q0 = task_share.Queue('L', 16, thread_protect=False, overwrite=False, name="Queue 0")
+        """
+        #qtim1 = task_share.Queue('i',300,thread_protect=False,overwrite=False,name="time1")
+        #qpos1 = task_share.Queue('i',300,thread_protect=False,overwrite=False,name="position1")
+        #qtim2 = task_share.Queue('i',300,thread_protect=False,overwrite=False,name="time2")
+        #qpos2 = task_share.Queue('i',300,thread_protect=False,overwrite=False,name="position2")
+
+        skp1 = task_share.Share("i", thread_protect=False, name="shared_kp1")
+        sendpos1 = task_share.Share("i",thread_protect=False, name="shared_endpos1")
+        skp2 = task_share.Share("i", thread_protect=False, name="shared_kp2")
+        sendpos2 = task_share.Share("i",thread_protect=False, name="shared_endpos2")
+        finx = task_share.Share("i", thread_protect=False, name="finishedx")
+        finy = task_share.Share("i", thread_protect=False, name="finishedy")
+
+        # Create the tasks. If trace is enabled for any task, memory will be
+        # allocated for state transition tracing, and the application will run out
+        # of memory after a while and quit. Therefore, use tracing only for 
+        # debugging and set trace to False when it's not needed
+        """task1 = cotask.Task(task1_fun, name="Task_1", priority=1, period=400, profile=True, trace=False, shares=(share0, q0))
+        task2 = cotask.Task(task2_fun, name="Task_2", priority=2, period=1500, profile=True, trace=False, shares=(share0, q0))
+        cotask.task_list.append(task1)
+        cotask.task_list.append(task2)
+        """
+
+        skp1.put(m1)
+        skp2.put(m2)
+        finx.put(0)
+        finy.put(1)
+        sendpos1.put(posy)
+        sendpos2.put(posx)
+
+        per = 20
+        #mot1 = cotask.Task(motor1, name = "motor_1", priority=3, period=per, profile=True, trace=False, shares=(skp1,sendpos1,finx))
+        mot2 = cotask.Task(motor2, name = "motor_2", priority=2, period=per, profile=True, trace=False, shares=(skp2,sendpos2,finx))
+        arr = cotask.Task(fire, name = "firing", priority=1, period=per, profile=True, trace=False, shares=(finx,finy))
+
+
+        #cotask.task_list.append(mot1)
+        cotask.task_list.append(mot2)
+        cotask.task_list.append(arr)
+        
+        # Run the memory garbage collector to ensure memory is as defragmented as
+        # possible before the real-time scheduler is started
+        gc.collect()
+    except KeyboardInterrupt:
+        mdriver2.set_duty_cycle(0)
 
     # Run the scheduler with the chosen scheduling algorithm. Quit if ^C pressed
     while True:
         try:
             cotask.task_list.pri_sched()
         except KeyboardInterrupt:
+            mdriver2.set_duty_cycle(0)
             break
 
     # Print a table of task data and a table of shared information data
