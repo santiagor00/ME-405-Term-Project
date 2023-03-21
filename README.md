@@ -10,22 +10,24 @@ This program controls a Nerf turret. The Nerf turret uses Ametek-Pittman PG6712A
 This turret is intended for the use of anyone who intends to battle against other turrets using the same duel rules.
 
 ## Hardware Design
-
+### Frame
 The frame of the turret is constructed of plywood and 2x4 wood planks, held together by screws.
 Pictures of the entire turret assembly are shown below.
 
 ![IMG_0978 4306](https://user-images.githubusercontent.com/91160149/226517562-6e7b5019-93d5-45b8-b0d3-6c8df30d8273.jpg)
 ![IMG_0965 4300](https://user-images.githubusercontent.com/91160149/226517597-f2b2bd48-6b48-4603-8f99-092c77d7a852.jpg)
 
+### Yaw Axis Design
 To allow rotation in the yaw axis, the top section of the turret rotates on top of a turntable bearing. Using a timing belt and a pair of pulleys, an electric motor drives the yaw motion of the turret. The large pulley was 3D printed out of PLA, and it features a hole in the center for routing wires.
 
 ![image](https://user-images.githubusercontent.com/91160149/226525194-70feef28-60af-4617-b5fe-60fd81dc53e9.png)
 
-
+### Tensioner System
 To maintain an approximately constant tension in the belt, a belt tensioner mechanism was used, in which the motor was held by a rotating arm that was pushed against the belt by a spring.
 
 ![image](https://user-images.githubusercontent.com/91160149/226522303-68ab5de8-ac42-4557-be9e-6a7a9c2abb6c.png)
 
+### Pitch Axis Design
 The turret also has the capability to rotate in the pitch axis, to aim up and down. Just like in the yaw axis, a motor drives a pair of pulleys with a timing belt. The output pulley is connected to a shaft, which rotates on two bearings. E-clips prevent the shaft from sliding along the bearings. The Nerf gun is attached to the shaft with duct tape. However, for this duel we determined that pitch rotation was not necessary, so we locked the rotation in the pitch axis by using screws to restrict the movement of the pitch pulley.
 
 ![IMG_0980 4301](https://user-images.githubusercontent.com/91160149/226521803-4845d1dd-e31d-4bd3-93f4-d58bd758e9f7.jpg)
