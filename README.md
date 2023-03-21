@@ -21,7 +21,7 @@ To allow rotation in the yaw axis, the top section of the turret rotates on top 
 
 To maintain an approximately constant tension in the belt, a belt tensioner mechanism was used, in which the motor was held by a rotating arm that was pushed against the belt by a spring.
 
-![image](https://user-images.githubusercontent.com/91160149/226521122-09faa981-b86e-499d-b0d8-b3a186b689e6.png)
+![image](https://user-images.githubusercontent.com/91160149/226522303-68ab5de8-ac42-4557-be9e-6a7a9c2abb6c.png)
 
 The turret also has the capability to rotate in the pitch axis, to aim up and down. Just like in the yaw axis, a motor drives a pair of pulleys with a timing belt. The output pulley is connected to a shaft. The Nerf gun is attached to the shaft with duct tape. However, for this duel we determined that pitch rotation was not necessary, so we locked the rotation in the pitch axis by using screws to restrict the movement of the pitch pulley.
 
