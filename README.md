@@ -30,12 +30,6 @@ The turret also has the capability to rotate in the pitch axis, to aim up and do
 
 ![IMG_0980 4301](https://user-images.githubusercontent.com/91160149/226521803-4845d1dd-e31d-4bd3-93f4-d58bd758e9f7.jpg)
 
-![IMG_4423](https://user-images.githubusercontent.com/122560263/226526274-4ca4ddee-a805-4752-8781-9c44f47f0d84.jpg)
-The triggering circuit for the gun utilizes a relay that acts as a switch for the gun. The gun utilizes several microswitches that sense whether or not the magazines is in the gun, if the jam door is open and for the triggers as well. After testing, we noticed that we can control the gun's firing mechanism by tricking it into thinking the magazine is in. By directly taking control of this microswitch's signal, we were able to make the gun enter and exit it's firing state so to speak. The circuit attached connects the microswitch signal only when the relay is activated. Otherwise it acts as an "open circuit", and effectively blocks the gun from firing.
-
-It was important that all power sources were grounded to the same board, so we had power for the gun also grounded on the breadboard.
-
-The flywheel motors were powered directly by splicing into the power cables for the motors. We added a switch to the cables in order to stop the motors as our emergency stop for the gun.
 
 A preliminary finite state machine is shown below.
 ![image](https://user-images.githubusercontent.com/91160149/222659616-70aec763-9652-46c0-8a5b-9024be7f3c49.png)
@@ -45,7 +39,12 @@ A preliminary finite state machine is shown below.
 
 The software is written so that the motors run cooperatively. Before that, there is a setup function that runs. The setup function initializes the x axis motor, spins the turret around, and captures the targeting image after the targets stop moving. Once the image is analyzed, the motors cooperate to align the gun with the target, and once there, the relay triggers the firing sequence.
 
-## Testing
+## Testing & Results
 An important test we performed was whether the Ametek-Pittman PG6712A077-R3 electric motors had enough torque to overcome the friction of the system. When we first tested this, we had not yet implemented the belt tensioning mechanism (the motor on the rotating arm with the spring). We found that there was a "rough spot" in each revolution of the larger yaw pulley, where the motor got stuck and was not able to rotate any farther. We determined that this was because the large yaw pulley was not perfectly centered with the axis of rotation of the top section of the turret, therefore the belt tension varied greatly as the pulley spun off-center. This led us to realize that we needed the belt tensioner mechanism. This completely solved the issue as the belt tension remained approximately constant and the motor no longer got stuck.
 
-We also tested our software to improve the aim of the turret when it detected the target. The turret used only proportional control (not derivative or integral).
+We also tested our software to improve the aim of the turret when it detected the target. To yaw left or right, the program determines the location of the hottest pixel from the IR image, determines how many pixels left or right it is from the center of the image, and uses that to determine the position it should rotate to. Essentially, it scales the pixel offset to an encoder ticks value. To determine how many encoder ticks correspond to a pixel, we iterated. After numerous iterations we found a scaling factor that accurately linked the pixel offset with the desired encoder tick offset.
+
+
+Another issue we found via testing was that during the inital 180-degree turn to face the target, the timing belt was slipping because the motor was putting out too much torque. We resolved this by decreasing Kp, and therefore making the turret accelrate slower in the yaw axis. With the slower acceleration, the belt no longer slipped. The extra time the turret took to complete the 180 degree turn was not an issue, because the turn was still complete under 5 seconds and the turret would not take a shot until after 5 seconds.
+
+After solving the slipping issue, we still noticed a problem. There was a noticable steady-state error in the yaw axis. This occurred because the turret overshot its setpoint, and when it compensated by moving back toward the setpoint it was not reaching it. Although implementing integral control would have resolved this, it was like 3 AM and our turret used only proportional control. So, we solved this by setting a setpoint slightly offset from our desired setpoint, to compensate for the steady state error.
