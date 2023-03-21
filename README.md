@@ -39,6 +39,9 @@ The turret also has the capability to rotate in the pitch axis, to aim up and do
 
 The software is written so that the motors run cooperatively. Before that, there is a setup function that runs. The setup function initializes the x axis motor, spins the turret around, and captures the targeting image after the targets stop moving. Once the image is analyzed, the motors cooperate to align the gun with the target, and once there, the relay triggers the firing sequence. For more information, see: https://santiagor00.github.io/ME-405-Term-Project/index.html
 
+## Task Diagram
+![image](https://user-images.githubusercontent.com/122561488/226540856-9cd0be83-7f78-47b5-b545-c3ea292ec2b2.png)
+
 ### Trigger System 
 ![IMG_4423](https://user-images.githubusercontent.com/122560263/226526274-4ca4ddee-a805-4752-8781-9c44f47f0d84.jpg)
 The triggering circuit for the gun utilizes a relay that acts as a switch for the gun. The gun utilizes several microswitches that sense whether or not the magazines is in the gun, if the jam door is open and for the triggers as well. After testing, we noticed that we can control the gun's firing mechanism by tricking it into thinking the magazine is in. By directly taking control of this microswitch's signal, we were able to make the gun enter and exit it's firing state so to speak. The circuit attached connects the microswitch signal only when the relay is activated. Otherwise it acts as an "open circuit", and effectively blocks the gun from firing. The flywheel motors were powered directly by splicing into the power cables for the motors. We added a switch to the cables in order to stop the motors as our emergency stop for the gun.
