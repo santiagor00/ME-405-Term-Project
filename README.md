@@ -1,9 +1,14 @@
 # ME-405-Term-Project
 Nerf Turret
 
+## Introduction
+
 This program controls a Nerf turret. The Nerf turret uses Ametek-PittmannPG6712A077-R3 DC brushed electric motors for movement, a Melexis MLX90640 infrared (IR) canera for target detection, and a Nerf Rapidstrike CS-18 for launching foam darts. The turret and the software are designed to participate in a duel. According to the rules of the duel, the target must remain stationary after 5 seconds and be approximately 200" from the turret. Only the first hit on the target counts, while missed shots subtract points. The turret must start the duel facing away from the target. The starting orientation of the turret, camera, and target are shown below. The target may move to the side as long as they stay in the field of view of the IR camera.
 
 ![image](https://user-images.githubusercontent.com/91160149/226514788-aae2918d-4371-4c49-b76a-7a5b6c7b3d77.png)
+
+This turret is intended for the use of anyone who intends to battle against other turrets using the same duel rules.
+
 
 
 The turret is constructed outt of wood and a turntable bearing. The Nerf gun that is used is a Rapidstrike CS-18. 
