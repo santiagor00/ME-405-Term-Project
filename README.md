@@ -1,5 +1,5 @@
 # ME-405-Term-Project
-Nerf Turret
+
 
 ## Introduction
 
@@ -9,9 +9,18 @@ This program controls a Nerf turret. The Nerf turret uses Ametek-PittmannPG6712A
 
 This turret is intended for the use of anyone who intends to battle against other turrets using the same duel rules.
 
+## Hardware Design
+
+The frame of the turret is constructed of plywood and 2x4 wood planks, held together by screws.
+Pictures of the entire turret assembly are shown below.
+
+![IMG_0978 4306](https://user-images.githubusercontent.com/91160149/226517562-6e7b5019-93d5-45b8-b0d3-6c8df30d8273.jpg)
+![IMG_0965 4300](https://user-images.githubusercontent.com/91160149/226517597-f2b2bd48-6b48-4603-8f99-092c77d7a852.jpg)
+
+To allow rotation in the yaw axis, the top section of the turret rotates on top of a turntable bearing. 
 
 
-The turret is constructed outt of wood and a turntable bearing. The Nerf gun that is used is a Rapidstrike CS-18. 
+The turret also has the capability to rotate in the pitch axis, to aim up and down. 
 
 A preliminary finite state machine is shown below.
 ![image](https://user-images.githubusercontent.com/91160149/222659616-70aec763-9652-46c0-8a5b-9024be7f3c49.png)
