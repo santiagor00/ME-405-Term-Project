@@ -47,7 +47,7 @@ We also tested our software to improve the aim of the turret when it detected th
 
 Another issue we found via testing was that during the inital 180-degree turn to face the target, the timing belt was slipping because the motor was putting out too much torque. We resolved this by decreasing Kp, and therefore making the turret accelrate slower in the yaw axis. With the slower acceleration, the belt no longer slipped. The extra time the turret took to complete the 180 degree turn was not an issue, because the turn was still complete under 5 seconds and the turret would not take a shot until after 5 seconds.
 
-After solving the slipping issue, we still noticed a problem. There was a noticable steady-state error in the yaw axis. This occurred because the turret overshot its setpoint, and when it compensated by moving back toward the setpoint it was not reaching it. Although implementing integral control would have resolved this, it was like 3 AM and our turret used only proportional control. So, we solved this by setting a setpoint slightly offset from our desired setpoint, to compensate for the steady state error.
+After solving the slipping issue, we still noticed a problem. There was a noticable steady-state error in the yaw axis. This occurred because the turret overshot its setpoint, and when it compensated by moving back toward the setpoint it was not reaching it. Although implementing integral control would have resolved this, it was approximately 3 AM and our turret used only proportional control. So, we solved this by setting a setpoint slightly offset from our desired setpoint, to compensate for the steady state error.
 
 ## Lessons Learned
 
