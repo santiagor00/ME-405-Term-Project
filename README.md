@@ -10,35 +10,30 @@ This program controls a Nerf turret. The Nerf turret uses Ametek-Pittman PG6712A
 This turret is intended for the use of anyone who intends to battle against other turrets using the same duel rules.
 
 ## Hardware Design
-### Frame
+
 The frame of the turret is constructed of plywood and 2x4 wood planks, held together by screws.
 Pictures of the entire turret assembly are shown below.
 
 ![IMG_0978 4306](https://user-images.githubusercontent.com/91160149/226517562-6e7b5019-93d5-45b8-b0d3-6c8df30d8273.jpg)
 ![IMG_0965 4300](https://user-images.githubusercontent.com/91160149/226517597-f2b2bd48-6b48-4603-8f99-092c77d7a852.jpg)
 
-### Yaw Axis Design
 To allow rotation in the yaw axis, the top section of the turret rotates on top of a turntable bearing. Using a timing belt and a pair of pulleys, an electric motor drives the yaw motion of the turret. The large pulley was 3D printed out of PLA, and it features a hole in the center for routing wires.
 
 ![image](https://user-images.githubusercontent.com/91160149/226525194-70feef28-60af-4617-b5fe-60fd81dc53e9.png)
 
-### Tensioner System
+
 To maintain an approximately constant tension in the belt, a belt tensioner mechanism was used, in which the motor was held by a rotating arm that was pushed against the belt by a spring.
 
 ![image](https://user-images.githubusercontent.com/91160149/226522303-68ab5de8-ac42-4557-be9e-6a7a9c2abb6c.png)
 
-### Pitch Axis Design
 The turret also has the capability to rotate in the pitch axis, to aim up and down. Just like in the yaw axis, a motor drives a pair of pulleys with a timing belt. The output pulley is connected to a shaft, which rotates on two bearings. E-clips prevent the shaft from sliding along the bearings. The Nerf gun is attached to the shaft with duct tape. However, for this duel we determined that pitch rotation was not necessary, so we locked the rotation in the pitch axis by using screws to restrict the movement of the pitch pulley.
 
 ![IMG_0980 4301](https://user-images.githubusercontent.com/91160149/226521803-4845d1dd-e31d-4bd3-93f4-d58bd758e9f7.jpg)
 
-### Trigger System 
-![IMG_4423](https://user-images.githubusercontent.com/122560263/226526274-4ca4ddee-a805-4752-8781-9c44f47f0d84.jpg)
-The triggering circuit for the gun utilizes a relay that acts as a switch for the gun. The gun utilizes several microswitches that sense whether or not the magazines is in the gun, if the jam door is open and for the triggers as well. After testing, we noticed that we can control the gun's firing mechanism by tricking it into thinking the magazine is in. By directly taking control of this microswitch's signal, we were able to make the gun enter and exit it's firing state so to speak. The circuit attached connects the microswitch signal only when the relay is activated. Otherwise it acts as an "open circuit", and effectively blocks the gun from firing. The flywheel motors were powered directly by splicing into the power cables for the motors. We added a switch to the cables in order to stop the motors as our emergency stop for the gun.
 
-### Finite State Machine
 A preliminary finite state machine is shown below.
 ![image](https://user-images.githubusercontent.com/91160149/222659616-70aec763-9652-46c0-8a5b-9024be7f3c49.png)
+
 
 ## Software Design
 
@@ -57,3 +52,7 @@ After solving the slipping issue, we still noticed a problem. There was a notica
 ## Lessons Learned
 
 Before this project, we believed that using pulleys was easier than using gears because we thought pulleys could work with looser dimensions. In this project, we learned that even if a pulley is slighly offset, it will cause problems with the belt tension. During one half of the rotation of the pulley, the belt will be exceedingly tight, while during the other half of the rotation the belt will be loose. As the pulley rotates off center, there is an imbalance of tension, which the motor torque may not be able to overcome, leading to the motor getting stuck. The solution to this, as we found out in this project, is to use a flexible element such as spring to keep the belt tensioned, while allowing one pulley to move realtive to the other one.
+
+We also learned that it would have been simpler to build our own foam dart gun from scratch rather than using the CS-18 Nerf gun. This is because the Nerf gun had many intricacies which were a pain to deal with. For example, there was a linear actuator that pushed the darts into the flywheels, and we had no way to get it to reset to its original position after firing a shot. If we had built our own foam dart gun, we would have understood the system much better and had greater control over it. 
+
+We spent a lot of time screwing and unscrewing the little screws in the Nerf gun's platic outer casing. If someone does decide to use a Nerf gun in a future project, once piece of advice is to not take out and put in all the screws in the plastic gun casing everytime you want to open up the gun. Instead, clip the gun casing into place and use zip ties to hold it together. You may also be able to hold it together by only putting in a few screws, but be sure that nothing is loose inside.
