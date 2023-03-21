@@ -23,7 +23,7 @@ To maintain an approximately constant tension in the belt, a belt tensioner mech
 
 ![image](https://user-images.githubusercontent.com/91160149/226522303-68ab5de8-ac42-4557-be9e-6a7a9c2abb6c.png)
 
-The turret also has the capability to rotate in the pitch axis, to aim up and down. Just like in the yaw axis, a motor drives a pair of pulleys with a timing belt. The output pulley is connected to a shaft. The Nerf gun is attached to the shaft with duct tape. However, for this duel we determined that pitch rotation was not necessary, so we locked the rotation in the pitch axis by using screws to restrict the movement of the pitch pulley.
+The turret also has the capability to rotate in the pitch axis, to aim up and down. Just like in the yaw axis, a motor drives a pair of pulleys with a timing belt. The output pulley is connected to a shaft, which rotates on two bearings. E-clips prevent the shaft from sliding along the bearings. The Nerf gun is attached to the shaft with duct tape. However, for this duel we determined that pitch rotation was not necessary, so we locked the rotation in the pitch axis by using screws to restrict the movement of the pitch pulley.
 
 ![IMG_0980 4301](https://user-images.githubusercontent.com/91160149/226521803-4845d1dd-e31d-4bd3-93f4-d58bd758e9f7.jpg)
 
@@ -32,6 +32,9 @@ A preliminary finite state machine is shown below.
 ![image](https://user-images.githubusercontent.com/91160149/222659616-70aec763-9652-46c0-8a5b-9024be7f3c49.png)
 
 
-# Software Design
+## Software Design
 
 The software is written so that the motors run cooperatively. Before that, there is a setup function that runs. The setup function initializes the x axis motor, spins the turret around, and captures the targeting image after the targets stop moving. Once the image is analyzed, the motors cooperate to align the gun with the target, and once there, the relay triggers the firing sequence.
+
+## Testing
+An important test we performed was whether the Ametek-Pittman PG6712A077-R3 electric motors had enough torque to overcome the friction of the system. When we first tested this, we had not yet implemented the belt tensioning mechanism (the motor on the rotating arm with the spring). We found that there was a "rough spot" in each revolution of the larger yaw pulley, where the motor got stuck and was not able to rotate any farther. We determined that this was because the large yaw pulley was not perfectly centered with the axis of rotation of the top section of the turret, therefore the belt tension varied greatly as the pulley spun off-center. 
