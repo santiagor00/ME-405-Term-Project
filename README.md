@@ -34,6 +34,10 @@ The turret also has the capability to rotate in the pitch axis, to aim up and do
 
 The software is written so that the motors run cooperatively. Before that, there is a setup function that runs. The setup function initializes the x axis motor, spins the turret around, and captures the targeting image after the targets stop moving. Once the image is analyzed, the motors cooperate to align the gun with the target, and once there, the relay triggers the firing sequence. For more information, see: https://santiagor00.github.io/ME-405-Term-Project/index.html
 
+A FSM of the program is shown below.
+![image](https://user-images.githubusercontent.com/91160149/226537104-cdc611df-347f-4230-b75e-823ad22c9f79.png)
+
+
 ## Testing & Results
 An important test we performed was whether the Ametek-Pittman PG6712A077-R3 electric motors had enough torque to overcome the friction of the system. When we first tested this, we had not yet implemented the belt tensioning mechanism (the motor on the rotating arm with the spring). We found that there was a "rough spot" in each revolution of the larger yaw pulley, where the motor got stuck and was not able to rotate any farther. We determined that this was because the large yaw pulley was not perfectly centered with the axis of rotation of the top section of the turret, therefore the belt tension varied greatly as the pulley spun off-center. This led us to realize that we needed the belt tensioner mechanism. This completely solved the issue as the belt tension remained approximately constant and the motor no longer got stuck.
 
