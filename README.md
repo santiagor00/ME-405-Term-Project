@@ -32,10 +32,12 @@ The turret also has the capability to rotate in the pitch axis, to aim up and do
 
 ![IMG_0980 4301](https://user-images.githubusercontent.com/91160149/226521803-4845d1dd-e31d-4bd3-93f4-d58bd758e9f7.jpg)
 
+### Trigger System 
+![IMG_4423](https://user-images.githubusercontent.com/122560263/226526274-4ca4ddee-a805-4752-8781-9c44f47f0d84.jpg)
+The triggering circuit for the gun utilizes a relay that acts as a switch for the gun. The gun utilizes several microswitches that sense whether or not the magazines is in the gun, if the jam door is open and for the triggers as well. After testing, we noticed that we can control the gun's firing mechanism by tricking it into thinking the magazine is in. By directly taking control of this microswitch's signal, we were able to make the gun enter and exit it's firing state so to speak. The circuit attached connects the microswitch signal only when the relay is activated. Otherwise it acts as an "open circuit", and effectively blocks the gun from firing. The flywheel motors were powered directly by splicing into the power cables for the motors. We added a switch to the cables in order to stop the motors as our emergency stop for the gun.
 
 A preliminary finite state machine is shown below.
 ![image](https://user-images.githubusercontent.com/91160149/222659616-70aec763-9652-46c0-8a5b-9024be7f3c49.png)
-
 
 ## Software Design
 
